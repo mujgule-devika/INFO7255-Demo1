@@ -5,9 +5,10 @@ const plansRoutes = require('./routes/plans.routes');
 const app = express();
 
 app.use(bodyParser.json());
+app.set("etag", "strong")
 app.use('/plans', plansRoutes);
 
-const PORT = 3009;
+const PORT = process.env.PORT || 5009;
 
 app.listen(PORT, (err) => {
   console.log(`Server has started at ${PORT}`);
