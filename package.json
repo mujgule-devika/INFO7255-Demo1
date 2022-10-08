@@ -2,9 +2,9 @@
   "name": "info7255-demo1",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "/src/app.js",
   "scripts": {
-    "start": "nodemon index"
+    "start": "nodemon src/app.js"
   },
   "repository": {
     "type": "git",
@@ -13,17 +13,22 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/mujgule-devika/INFO7255-Demo1/issues"
   },
   "homepage": "https://github.com/mujgule-devika/INFO7255-Demo1#readme",
   "dependencies": {
+    "ajv": "^8.11.0",
+    "ajv-formats": "^2.1.1",
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
+    "express-handlebars": "^6.0.6",
+    "method-override": "^3.0.0",
     "node-fetch": "^3.2.10",
-    "redis": "^4.3.1"
-  },
-  "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "redis": "^4.3.1",
+    "uuid": "^9.0.0"
   }
 }
