@@ -6,7 +6,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.set("etag", "strong")
-app.use('/plans', plansRoutes);
+app.use('/v1/plans', plansRoutes);
 
 const PORT = process.env.PORT || 5009;
 
