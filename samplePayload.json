@@ -37,10 +37,8 @@
 			"copay": 175,
 			"objectId": "1234512xvc1314sdfsd-506",
 			"objectType": "membercostshare"
-		},
-		
+		}, 
 		"_org": "example.com",
-		
 		"objectId": "27283xvx9sdf-507",
 		"objectType": "planservice"
 	}],

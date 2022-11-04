@@ -35,3 +35,6 @@ node_modules/
 .eslintcache
 
 dist
+# Private and Public key files 
+private.key
+public.key

@@ -2,9 +2,15 @@ const express = require('express');
 const router = express.Router();
 const schema = require("../schema")
 const Redis = require('redis');
-const client = Redis.createClient();
+const jwt = require('jsonwebtoken');
+const fs = require("fs");
+const client = Redis.createClient({
+  host: "redis-server",
+  port: 6379
+});
 client.connect();
 
+//schema validation
 function validation(ajvValidate) {
   return (req, res, next) => {
     const valid = ajvValidate(req.body);
@@ -28,11 +34,40 @@ function validation(ajvValidate) {
 //   console.log(allPlans);
 // })
 
+//get token
+router.post('/token', (req, res) => {
+  console.log(`Generating Token`);
+  const token = generateAccessToken(req.body);
+  console.log(`token body`, token);
+  res.status(200).send({ auth: true, token: token });
+});
+
+const generateAccessToken = (payload) => {
+  // expires after half and hour (600 seconds = 10 minutes)
+  const privateKey = fs.readFileSync('src/private.key', 'utf8');
+  return jwt.sign(payload, privateKey, { expiresIn: '600s', algorithm: 'RS256', audience: 'http://localhost:5009' });
+}
+
+
+//verify token 
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+
+  if (token == null) return res.status(401).send({ auth: false, error: 'No access token was provided!' });
+  const publicKey = fs.readFileSync('src/public.key', 'utf8');
+  jwt.verify(token, publicKey, (err, decodedToken) => {
+    if (err) return res.status(403).send({ auth: false, error: err });
+    req.access = decodedToken;
+    next();
+  });
+};
+
 //Get Plan based on ID 
-router.get('/:id', async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
 
   const id = String(req.params.id)
-  const planVal = await client.get(id);
+  const planVal = await client.json.get(id);
   const jsonPlan = JSON.parse(planVal)
   console.log('Get by Id working');
 
@@ -44,7 +79,7 @@ router.get('/:id', async (req, res) => {
 });
 
 //post a new plan
-router.post('/', validation(schema), async (req, res) => {
+router.post('/', verifyToken, validation(schema), async (req, res) => {
   console.log(`POST working`);
 
   const plan = JSON.stringify(req.body);
@@ -59,14 +94,14 @@ router.post('/', validation(schema), async (req, res) => {
     res.status(409).send({ "message": `Plan with id: ${objId} already exists!` });
   } else {
     validation(plan)
-    client.set(objId, plan);
+    client.json.set(objId, '$', plan);
     res.status(201).send({ "message": "Plan added successfully!", "id": `${objId}` });
   }
 });
 
 
 //delete a plan by id 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   const id = String(req.params.id);
   const exists = await client.exists(id)
   console.log('deleeetee ', exists);
